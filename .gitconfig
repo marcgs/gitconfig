@@ -31,7 +31,6 @@
     added = yellow
     changed = green
     untracked = cyan
-
 # }}}
 # push/pull/diff/options {{{
 [push]
@@ -44,7 +43,6 @@
     autosetuprebase = always
 [apply]
     whitespace = nowarn
-
 #}}}
 # alias {{{
 [alias]
@@ -82,6 +80,7 @@
     lnc = log --pretty=format:"%h\\ %s\\ [%cn]"
     fl = log -u
     filelog = log -u
+    logtree = log --graph --oneline --decorate --all
     # }}}
     # diff {{{
     d = diff --word-diff
@@ -132,19 +131,22 @@
     ours = "!f() { git co --ours $@ && git add $@; }; f"
     theirs = "!f() { git co --theirs $@ && git add $@; }; f"
 
-    #list remotes
+    # list remotes
     rem="!git config -l | grep remote.*url | tail -n +2"
 
-    #apply patch from other local repo
+    # apply patch from other local repo
     lap = "!f() { git --git-dir=$1 format-patch -k -1 --stdout $2 | git am -3 -k; }; f"
 
-    #open markdown files edited in last commit
+    # open markdown files edited in last commit
     last = "!gvim $(git show HEAD --format="" --name-only | grep -e .*md$ | xargs)"
-    #open just created markdown in working directory
+    # open just created markdown in working directory
     newmd = "!gvim $(git status -s | awk {'print $2'})"
 
     # initial empty commit
     empty = "!git commit -am\"[empty] Initial commit\" --allow-empty"
+
+    # prune branches no longer in remote
+    prunebr = "!f() { git fetch -p && for branch in `git branch -vv | grep ': gone]' | awk '{print $1}'`; do git branch -D $branch; done }; f"
 
     # list all aliases
     la = "!git config -l | grep alias | cut -c 7-"
@@ -161,8 +163,6 @@
     wl = worktree list
     # undo from here http://megakemp.com/2016/08/25/git-undo/
     undo = "!f() { git reset --hard $(git rev-parse --abbrev-ref HEAD)@{${1-1}}; }; f"
-	  logtree = log --graph --oneline --decorate --all
-    prunebr = "!f() { git fetch -p && for branch in `git branch -vv | grep ': gone]' | awk '{print $1}'`; do git branch -D $branch; done }; f"
     # }}}
 # }}}
 [rerere]
@@ -170,7 +170,7 @@
 [rebase]
   autosquash = true
 [filter "lfs"]
-	clean = git-lfs clean %f
-	smudge = git-lfs smudge %f
-	required = true
+  clean = git-lfs clean %f
+  smudge = git-lfs smudge %f
+  required = true
 
